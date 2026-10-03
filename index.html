@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Disney Timeline Ultimate Quiz (+50 Películas)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        heading: ['Fredoka', 'sans-serif'],
+                        body: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        disney: {
+                            purple: '#4c1d95',
+                            indigo: '#312e81',
+                            blue: '#1e40af',
+                            pink: '#db2777',
+                            gold: '#f59e0b',
+                            light: '#e0e7ff',
+                        }
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'bounce-short': 'bounceShort 0.5s ease infinite alternate',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        },
+                        bounceShort: {
+                            '0%': { transform: 'translateY(0)' },
+                            '100%': { transform: 'translateY(-6px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #090d16 0%, #111827 30%, #1e1b4b 70%, #2e1065 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+        .font-heading {
+            font-family: 'Fredoka', sans-serif;
+        }
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 34px;
+            width: 34px;
+            border-radius: 50%;
+            background: #f59e0b;
+            cursor: pointer;
+            border: 4px solid #ffffff;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.5);
+            margin-top: -13px;
+            transition: transform 0.1s ease, background-color 0.2s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            background: #fbbf24;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 10px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(245, 158, 11, 0.4);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(245, 158, 11, 0.7);
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen selection:bg-amber-400 selection:text-slate-900">
+
+    <header class="w-full py-4 px-4 sm:px-8 border-b border-white/10 backdrop-blur-md bg-slate-950/50 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="goToHome()">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 via-pink-500 to-indigo-500 flex items-center justify-center text-xl shadow-lg shadow-amber-500/20">
+                    ✨
+                </div>
+                <div>
+                    <h1 class="font-heading text-xl sm:text-2xl font-bold bg-gradient-to-r from-amber-300 via-pink-300 to-purple-300 bg-clip-text text-transparent">
+                        Disney Timeline Ultimate
+                    </h1>
+                    <p class="text-xs text-slate-400">¿Cuánto sabes de los estrenos del Siglo XX y XXI?</p>
+                </div>
+            </div>
+
+            <nav class="flex items-center space-x-2 bg-slate-900/80 p-1.5 rounded-2xl border border-white/10">
+                <button id="nav-btn-game" onclick="switchMode('game')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-md">
+                    🎮 Juego Individual
+                </button>
+                <button id="nav-btn-group" onclick="switchMode('group')" class="px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10">
+                    👥 Modo Grupo (+50)
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow container max-w-5xl mx-auto px-4 py-8 flex flex-col justify-center">
+
+        <!-- VIEW: HOME (SETTINGS & START) -->
+        <div id="view-home" class="text-center space-y-8 py-4">
+            <div class="space-y-4">
+                <span class="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-amber-400/10 text-amber-300 border border-amber-400/30">
+                    🎬 Gran Banco de +50 Películas (1937 - Presente)
+                </span>
+                <h2 class="font-heading text-4xl sm:text-6xl font-extrabold tracking-tight text-white leading-tight">
+                    Adivina el año exacto <br>
+                    <span class="bg-gradient-to-r from-amber-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
+                        de la historia de Disney
+                    </span>
+                </h2>
+                <p class="text-slate-300 max-w-2xl mx-auto text-base sm:text-lg">
+                    Desde el primer largometraje animado en 1937 (*Blancanieves*) hasta los éxitos más recientes. Configura tu partida y pon a prueba tu memoria cinematográfica.
+                </p>
+            </div>
+
+            <!-- Configuration Card -->
+            <div class="glass-card max-w-2xl mx-auto p-6 sm:p-8 rounded-3xl space-y-6 text-left">
+                <h3 class="font-heading text-xl font-bold text-amber-300 border-b border-white/10 pb-3 flex items-center gap-2">
+                    <span>⚙️</span> Configura tu partida
+                </h3>
+
+                <div class="space-y-5">
+                    <!-- Century Filter -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Época de películas:</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <button id="era-all" onclick="setEraFilter('all')" class="px-4 py-3 rounded-2xl border text-sm font-bold transition-all bg-amber-500 text-slate-950 border-amber-400">
+                                🌟 Todas las épocas
+                            </button>
+                            <button id="era-xx" onclick="setEraFilter('xx')" class="px-4 py-3 rounded-2xl border text-sm font-bold transition-all bg-white/5 text-slate-300 border-white/10 hover:bg-white/10">
+                                🏰 Siglo XX (1937-2000)
+                            </button>
+                            <button id="era-xxi" onclick="setEraFilter('xxi')" class="px-4 py-3 rounded-2xl border text-sm font-bold transition-all bg-white/5 text-slate-300 border-white/10 hover:bg-white/10">
+                                🚀 Siglo XXI (2001-Hoy)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Number of Questions -->
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold uppercase tracking-wider text-slate-400">Número de Preguntas:</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <button id="count-10" onclick="setCountFilter(10)" class="px-4 py-2.5 rounded-2xl border text-sm font-bold transition-all bg-white/5 text-slate-300 border-white/10 hover:bg-white/10">
+                                ⚡ 10 Películas
+                            </button>
+                            <button id="count-20" onclick="setCountFilter(20)" class="px-4 py-2.5 rounded-2xl border text-sm font-bold transition-all bg-amber-500 text-slate-950 border-amber-400">
+                                🎯 20 Películas
+                            </button>
+                            <button id="count-all" onclick="setCountFilter('all')" class="px-4 py-2.5 rounded-2xl border text-sm font-bold transition-all bg-white/5 text-slate-300 border-white/10 hover:bg-white/10">
+                                ♾️ Todas (+50)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex justify-between items-center text-xs text-slate-400 border-t border-white/10">
+                    <span>Películas disponibles para esta selección:</span>
+                    <span id="available-count-badge" class="font-bold text-amber-300 text-sm">52 Películas</span>
+                </div>
+            </div>
+
+            <div class="pt-2 flex flex-col sm:flex-row justify-center gap-4">
+                <button onclick="startGame()" class="px-10 py-4 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-heading text-lg font-bold shadow-xl shadow-amber-500/20 transform hover:-translate-y-1 transition-all">
+                    🚀 ¡Empezar Desafío!
+                </button>
+                <button onclick="switchMode('group')" class="px-8 py-4 rounded-2xl glass-pill hover:bg-white/20 text-white font-heading text-lg font-bold border border-white/20 transition-all">
+                    👥 Modo Grupo / Ver +50 Tarjetas
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW: GAME PLAYING -->
+        <div id="view-game" class="hidden space-y-6">
+            <!-- Game Bar Status -->
+            <div class="glass-pill p-4 rounded-2xl flex justify-between items-center text-sm font-semibold">
+                <div class="flex items-center space-x-2">
+                    <span class="text-slate-400">Película:</span>
+                    <span id="game-progress-text" class="text-amber-300 font-bold">1 / 20</span>
+                </div>
+                <div class="w-1/3 bg-slate-900/80 h-3 rounded-full overflow-hidden border border-white/10 hidden sm:block">
+                    <div id="game-progress-bar" class="h-full bg-gradient-to-r from-amber-400 to-pink-500 transition-all duration-300" style="width: 5%;"></div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-slate-400">Puntos:</span>
+                    <span id="game-score" class="text-2xl font-bold font-heading text-amber-400">0</span>
+                </div>
+            </div>
+
+            <!-- Card Question -->
+            <div class="glass-card rounded-3xl p-6 sm:p-8 space-y-6 relative overflow-hidden">
+                <div class="flex flex-col sm:flex-row items-center gap-6">
+                    <div id="movie-avatar" class="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl bg-gradient-to-br from-indigo-500/30 via-purple-500/30 to-pink-500/30 border border-white/20 flex items-center justify-center text-6xl sm:text-7xl shadow-inner flex-shrink-0 animate-float">
+                        🎬
+                    </div>
+
+                    <div class="space-y-2 text-center sm:text-left flex-grow">
+                        <div class="flex flex-wrap gap-2 justify-center sm:justify-start items-center">
+                            <span id="movie-tag" class="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                Disney / Pixar
+                            </span>
+                            <span id="movie-century" class="px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                                Siglo XX
+                            </span>
+                        </div>
+                        <h2 id="movie-title" class="text-2xl sm:text-4xl font-heading font-extrabold text-white">
+                            Cargando película...
+                        </h2>
+                        <p id="movie-desc" class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                            Cargando información...
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="border-white/10">
+
+                <!-- Interactive Slider Controls -->
+                <div id="interactive-area" class="space-y-6 py-2">
+                    <div class="text-center space-y-1">
+                        <label for="year-slider" class="text-xs uppercase tracking-wider text-slate-400 font-semibold">Tu estimación del año de estreno:</label>
+                        <div id="selected-year-display" class="text-5xl font-extrabold font-heading text-amber-400">
+                            1995
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 px-2 sm:px-6">
+                        <input type="range" id="year-slider" min="1937" max="2026" value="1995" oninput="updateYearDisplay(this.value)">
+                        <div class="flex justify-between text-xs text-slate-400 font-semibold">
+                            <span>1937</span>
+                            <span>1965</span>
+                            <span>1995</span>
+                            <span>2010</span>
+                            <span>2026</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 text-center">
+                        <button id="btn-submit-answer" onclick="submitAnswer()" class="w-full sm:w-auto px-10 py-3.5 rounded-2xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-heading font-bold text-lg shadow-lg shadow-amber-500/20 transition-all transform active:scale-95">
+                            ✨ Confirmar Respuesta
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feedback Answer Area -->
+                <div id="feedback-area" class="hidden space-y-4 p-5 rounded-2xl bg-slate-950/80 border border-white/10">
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div id="feedback-badge" class="w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                🎯
+                            </div>
+                            <div>
+                                <h3 id="feedback-title" class="font-heading font-bold text-lg text-white">¡Exacto!</h3>
+                                <p id="feedback-sub" class="text-xs text-slate-300">Año real de estreno: <span id="real-year-text" class="font-bold text-amber-300">1995</span></p>
+                            </div>
+                        </div>
+                        <div id="feedback-points" class="text-xl font-heading font-bold text-amber-400 bg-amber-400/10 px-4 py-2 rounded-xl border border-amber-400/20">
+                            +100 Ptos
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 p-3.5 rounded-xl border border-white/5 text-sm text-slate-300 flex items-start space-x-3">
+                        <span class="text-lg">💡</span>
+                        <div>
+                            <span class="font-semibold text-white block text-xs uppercase text-slate-400 mb-0.5">Curiosidad Histórica:</span>
+                            <span id="feedback-trivia">Curiosidad sobre la película...</span>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 text-right">
+                        <button id="btn-next-question" onclick="nextQuestion()" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-heading font-bold text-base shadow-lg transition-all flex items-center justify-center space-x-2 ml-auto">
+                            <span>Siguiente Película</span>
+                            <span>➔</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: RESULTS -->
+        <div id="view-results" class="hidden space-y-8 text-center">
+            <div class="glass-card p-8 rounded-3xl space-y-6 max-w-2xl mx-auto">
+                <div class="space-y-2">
+                    <div id="trophy-emoji" class="text-7xl animate-bounce-short mb-2">🏆</div>
+                    <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                        ¡Partida Completada!
+                    </h2>
+                    <p id="rank-title" class="text-lg font-bold text-amber-300">
+                        Maestro de la Cronología Disney
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 py-4">
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-white/10">
+                        <span class="text-xs text-slate-400 block font-semibold">PUNTUACIÓN TOTAL</span>
+                        <span id="final-score" class="text-3xl font-heading font-extrabold text-amber-400">1850</span>
+                        <span id="max-possible-score" class="text-xs text-slate-500 block">de 2000 máx</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-white/10">
+                        <span class="text-xs text-slate-400 block font-semibold">ACIERTOS EXACTOS</span>
+                        <span id="exact-hits" class="text-3xl font-heading font-extrabold text-emerald-400">12</span>
+                        <span id="total-questions-count" class="text-xs text-slate-500 block">de 20 películas</span>
+                    </div>
+                    <div class="bg-slate-900/80 p-4 rounded-2xl border border-white/10 col-span-2 sm:col-span-1">
+                        <span class="text-xs text-slate-400 block font-semibold">DESVIACIÓN MEDIA</span>
+                        <span id="avg-error" class="text-3xl font-heading font-extrabold text-pink-400">0.8</span>
+                        <span class="text-xs text-slate-500 block">años de margen</span>
+                    </div>
+                </div>
+
+                <p id="final-message" class="text-slate-300 text-sm sm:text-base leading-relaxed px-4">
+                    ¡Excelente conocimiento! Dominas los estrenos clave de la historia del cine.
+                </p>
+
+                <div class="pt-4 flex flex-col sm:flex-row justify-center gap-4">
+                    <button onclick="goToHome()" class="px-8 py-3.5 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-heading font-bold text-lg shadow-lg shadow-amber-500/20 transition-all">
+                        ⚙️ Configurar Otra Partida
+                    </button>
+                    <button onclick="switchMode('group')" class="px-8 py-3.5 rounded-2xl glass-pill hover:bg-white/20 text-white font-heading font-bold text-lg border border-white/20 transition-all">
+                        📜 Explorar las +50 Películas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW: GROUP / FIESTA (+50 CARDS) -->
+        <div id="view-group" class="hidden space-y-6">
+            <div class="text-center space-y-3 max-w-3xl mx-auto">
+                <span class="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    👥 Modo Grupo / Presentador
+                </span>
+                <h2 class="font-heading text-3xl sm:text-4xl font-extrabold text-white">
+                    Catálogo Completo (+50 Películas)
+                </h2>
+                <p class="text-slate-300 text-sm">
+                    Utiliza este modo para jugar en vivo con amigos y familiares. Filtra por siglo o busca por nombre para revelar respuestas e información histórica.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                    <input type="text" id="group-search" oninput="filterGroupList()" placeholder="🔍 Buscar película..." class="px-4 py-2 rounded-xl bg-slate-900/80 border border-white/15 text-sm text-white focus:outline-none focus:border-amber-400 w-full sm:w-64">
+                    
+                    <select id="group-era-filter" onchange="filterGroupList()" class="px-4 py-2 rounded-xl bg-slate-900/80 border border-white/15 text-sm text-amber-300 font-semibold focus:outline-none w-full sm:w-auto">
+                        <option value="all">Todas las Épocas</option>
+                        <option value="xx">Siglo XX (1937 - 2000)</option>
+                        <option value="xxi">Siglo XXI (2001 - Presente)</option>
+                    </select>
+
+                    <button onclick="toggleAllYears()" id="btn-toggle-all" class="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-slate-200 border border-white/15 transition-all w-full sm:w-auto">
+                        👁️ Revelar todos
+                    </button>
+                </div>
+            </div>
+
+            <div id="group-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full py-6 text-center text-xs text-slate-500 border-t border-white/5 mt-auto">
+        <p>Disney Timeline Quiz • Juego de conocimiento cinematográfico del Siglo XX y XXI</p>
+    </footer>
+
+    <script>
+        // Database containing 52 Disney & Pixar movies spanning 1937 to present
+        const moviesDatabase = [
+            // SIGLO XX (1937 - 2000)
+            { id: 1, title: "Blancanieves y los siete enanitos", year: 1937, century: "XX", studio: "Disney Classic", emoji: "🍎", desc: "La malvada madrastra ordena matar a Blancanieves, pero ella encuentra refugio con siete mineros.", trivia: "Fue el primer largometraje de animación sonoro y en color de la historia del cine." },
+            { id: 2, title: "Pinocho", year: 1940, century: "XX", studio: "Disney Classic", emoji: "🤥", desc: "Un anciano carpintero llamado Geppetto fabrica una marioneta de madera que cobra vida.", trivia: "Ganó dos premios Oscar, incluyendo Mejor Banda Sonora por la canción 'When You Wish Upon a Star'." },
+            { id: 3, title: "Fantasía", year: 1940, century: "XX", studio: "Disney Classic", emoji: "🪄", desc: "Ocho segmentos animados ambientados con piezas de música clásica dirigidas por Leopold Stokowski.", trivia: "Fue la primera película comercial proyectada en sonido estereofónico (Fantasound)." },
+            { id: 4, title: "Dumbo", year: 1941, century: "XX", studio: "Disney Classic", emoji: "🐘", desc: "Un pequeño elefante de circo con enormes orejas descubre que puede volar con ellas.", trivia: "Con solo 64 minutos de duración, es uno de los largometrajes más cortos de Disney." },
+            { id: 5, title: "Bambi", year: 1942, century: "XX", studio: "Disney Classic", emoji: "🦌", desc: "Un joven ciervo crece en el bosque junto a sus amigos Tambor y Flor tras una trágica pérdida.", trivia: "Los animadores estudiaron durante meses la anatomía de ciervos reales en el estudio." },
+            { id: 6, title: "Cenicienta", year: 1950, century: "XX", studio: "Disney Classic", emoji: "👠", desc: "Una joven maltratada por su madrastra acude al baile real gracias a su Hada Madrina.", trivia: "Salvó financieramente a los estudios Disney tras las pérdidas económicas de la Segunda Guerra Mundial." },
+            { id: 7, title: "Alicia en el país de las maravillas", year: 1951, century: "XX", studio: "Disney Classic", emoji: "🫖", desc: "Alicia cae por un conejero y entra a un mundo disparatado lleno de criaturas surrealistas.", trivia: "Walt Disney llevaba intentando adaptar el libro de Lewis Carroll desde 1930." },
+            { id: 8, title: "Peter Pan", year: 1953, century: "XX", studio: "Disney Classic", emoji: "🧚‍♀️", desc: "Wendy y sus hermanos vuelan a Nunca Jamás con el niño que nunca crece.", trivia: "Fue la última película en la que colaboraron juntos los Nueve Anteriores (los animadores legendarios)." },
+            { id: 9, title: "La dama y el vagabundo", year: 1955, century: "XX", studio: "Disney Classic", emoji: "🍝", desc: "Una perrita cocker spaniel mimada se enamora de un perro callejero mestizo.", trivia: "Fue el primer largometraje animado filmado en el formato panorámico CinemaScope." },
+            { id: 10, title: "La bella durmiente", year: 1959, century: "XX", studio: "Disney Classic", emoji: "👑", desc: "La princesa Aurora es maldecida por Maléfica a caer en un sueño profundo al cumplir 16 años.", trivia: "Tardó casi una década en producirse debido a sus detallados fondos inspirados en el arte medieval." },
+            { id: 11, title: "101 dálmatas", year: 1961, century: "XX", studio: "Disney Classic", emoji: "🐾", desc: "Cruella de Vil secuestra a docenas de cachorros dálmatas para hacerse un abrigo de piel.", trivia: "Pionera en el uso de la xerografía para fotocopiar los dibujos a lápiz directamente a las celdas." },
+            { id: 12, title: "El libro de la selva", year: 1967, century: "XX", studio: "Disney Classic", emoji: "🐻", desc: "Mowgli, un niño criado por lobos, debe regresar a la aldea humana guiado por Bagheera y Baloo.", trivia: "Fue la última película animada supervisada personalmente por Walt Disney antes de su muerte." },
+            { id: 13, title: "Los aristogatos", year: 1970, century: "XX", studio: "Disney Classic", emoji: "🎷", desc: "Una familia de gatos aristócratas es abandonada por un mayordomo celoso en el campo.", trivia: "Fue el primer proyecto de animación aprobado oficialmente tras el fallecimiento de Walt Disney." },
+            { id: 14, title: "Robin Hood", year: 1973, century: "XX", studio: "Disney Classic", emoji: "🏹", desc: "El legendario héroe zorro roba a los ricos para dárselo a los pobres en el bosque de Sherwood.", trivia: "Reutilizó secuencias de baile de Blancanieves, Los Aristogatos y El Libro de la Selva para ahorrar presupuesto." },
+            { id: 15, title: "Tod y Toby (The Fox and the Hound)", year: 1981, century: "XX", studio: "Disney Classic", emoji: "🦊", desc: "Un zorro y un perro de caza se hacen amigos en la infancia sin saber que serán enemigos.", trivia: "Marcó la transición generacional entre los veteranos animadores de Disney y jóvenes talentos como Tim Burton." },
+            { id: 16, title: "La sirenita", year: 1989, century: "XX", studio: "Disney Renaissance", emoji: "🧜‍♀️", desc: "Ariel hace un trato con la bruja del mar Úrsula para convertirse en humana y conquistar al príncipe.", trivia: "Inauguró la época dorada conocida como el Renacimiento de Disney." },
+            { id: 17, title: "La bella y la bestia", year: 1991, century: "XX", studio: "Disney Renaissance", emoji: "🌹", desc: "Bella se ofrece como prisionera en el castillo de una Bestia para salvar a su padre.", trivia: "Primera película animada de la historia nominada al Oscar a Mejor Película." },
+            { id: 18, title: "Aladdin", year: 1992, century: "XX", studio: "Disney Renaissance", emoji: "🪔", desc: "Un joven callejero encuentra una lámpara mágica cuyo Genio concede tres deseos.", trivia: "Robin Williams improvisó más de 16 horas de diálogos grabando la voz del Genio." },
+            { id: 19, title: "El rey león", year: 1994, century: "XX", studio: "Disney Renaissance", emoji: "🦁", desc: "El pequeño león Simba debe reclamar su lugar como rey tras la traición de su tío Scar.", trivia: "Se convirtió en la película de animación 2D más taquillera de todos los tiempos." },
+            { id: 20, title: "Pocahontas", year: 1995, century: "XX", studio: "Disney Renaissance", emoji: "🍃", desc: "La hija de un jefe nativo americano se enamora del capitán inglés John Smith.", trivia: "Ganó dos premios Oscar por su inolvidable música compuesta por Alan Menken." },
+            { id: 21, title: "Toy Story", year: 1995, century: "XX", studio: "Pixar", emoji: "🤠", desc: "El vaquero Woody siente celos cuando el moderno juguete espacial Buzz Lightyear llega a la habitación.", trivia: "Primer largometraje de la historia generado íntegramente por ordenador." },
+            { id: 22, title: "El jorobado de Notre Dame", year: 1996, century: "XX", studio: "Disney Renaissance", emoji: "🔔", desc: "Quasimodo, el campanero de Notre Dame, ayuda a la gitana Esmeralda en París.", trivia: "Considerada una de las películas más oscuras y maduras del catálogo clásico." },
+            { id: 23, title: "Hércules", year: 1997, century: "XX", studio: "Disney Renaissance", emoji: "⚡", desc: "El hijo de Zeus debe demostrar que es un verdadero héroe para recuperar su divinidad.", trivia: "El diseño visual se inspiró directamente en las cerámicas y arte de la Antigua Grecia." },
+            { id: 24, title: "Bichos, una aventura en miniatura", year: 1998, century: "XX", studio: "Pixar", emoji: "🐜", desc: "Una hormiga inventora recluta a un grupo de insectos de circo para defender su hormiguero.", trivia: "Fue la segunda película en la historia producida por Pixar Animation Studios." },
+            { id: 25, title: "Mulán", year: 1998, century: "XX", studio: "Disney Renaissance", emoji: "🗡️", desc: "Una joven china se disfraza de hombre para luchar en el ejército en lugar de su padre enfermo.", trivia: "La producción duró cuatro años y se realizó en los estudios de Disney en Florida." },
+            { id: 26, title: "Tarzán", year: 1999, century: "XX", studio: "Disney Renaissance", emoji: "🦍", desc: "Un hombre criado por gorilas en la selva descubre la civilización humana y el amor.", trivia: "Phil Collins compuso e interpretó la banda sonora en cinco idiomas distintos." },
+            { id: 27, title: "El emperador y sus locuras", year: 2000, century: "XX", studio: "Disney Classic", emoji: "🦙", desc: "El egocéntrico emperador Kuzco es transformado accidentalmente en llama por su exasesora.", trivia: "Sufrió una drástica reescritura que la transformó de drama épico a comedia disparatada." },
+
+            // SIGLO XXI (2001 - PRESENTE)
+            { id: 28, title: "Monstruos, S.A. (Monsters, Inc.)", year: 2001, century: "XXI", studio: "Pixar", emoji: "👾", desc: "Mike y Sulley asustan niños para obtener energía, hasta que una niña humana entra a su mundo.", trivia: "El pelaje de Sulley tenía más de 2,3 millones de cabellos simulados de manera individual." },
+            { id: 29, title: "Lilo & Stitch", year: 2002, century: "XXI", studio: "Disney Classic", emoji: "🌺", desc: "Una niña hawaiana solitaria adopta a un peligroso experimento extraterrestre creyendo que es un perro.", trivia: "Utilizó fondos pintados en acuarela, una técnica no usada en Disney desde los años 40." },
+            { id: 30, title: "Buscando a Nemo", year: 2003, century: "XXI", studio: "Pixar", emoji: "🐠", desc: "Un pez payaso miedoso cruza el océano con Dory para rescatar a su hijo Nemo.", trivia: "Se convirtió en la película en formato DVD más vendida de toda la historia." },
+            { id: 31, title: "Los Increíbles", year: 2004, century: "XXI", studio: "Pixar", emoji: "🦸‍♂️", desc: "Una familia de superhéroes retirados se ve obligada a volver a la acción para salvar el mundo.", trivia: "Fue la primera producción de Pixar protagonizada exclusivamente por humanos." },
+            { id: 32, title: "Cars", year: 2006, century: "XXI", studio: "Pixar", emoji: "🏎️", desc: "Rayo McQueen se queda varado en el pueblo olvidado de Radiador Springs.", trivia: "Inspiró una de las franquicias de mercadotecnia más lucrativas de la compañía." },
+            { id: 33, title: "Ratatouille", year: 2007, century: "XXI", studio: "Pixar", emoji: "🧀", desc: "Una rata con paladar refinado se alía con un joven torpe para cocinar en París.", trivia: "Los animadores asistieron a cursos de alta cocina gourmet para recrear los platillos." },
+            { id: 34, title: "WALL-E", year: 2008, century: "XXI", studio: "Pixar", emoji: "🤖", desc: "Un robot de limpieza en una Tierra devastada se enamora de la sonda espacial EVA.", trivia: "Los primeros 40 minutos de película transcurren casi sin ningún diálogo." },
+            { id: 35, title: "Up", year: 2009, century: "XXI", studio: "Pixar", emoji: "🎈", desc: "Un anciano atará miles de globos a su casa para viajar a Sudamérica junto a un explorador.", trivia: "Fue la segunda película animada nominada al Oscar a Mejor Película General." },
+            { id: 36, title: "Tiana y el sapo", year: 2009, century: "XXI", studio: "Disney Classic", emoji: "🐸", desc: "Una joven de Nueva Orleans besa a un príncipe sapo y se convierte ella misma en rana.", trivia: "Significó el retorno de Disney a la animación tradicional realizada a mano." },
+            { id: 37, title: "Enredados (Tangled)", year: 2010, century: "XXI", studio: "Disney Classic", emoji: "🍳", desc: "Rapunzel escapa de su torre con el bandido Flynn Rider gracias a su mágica cabellera.", trivia: "Fue el largometraje número 50 del canon oficial de animación de Disney." },
+            { id: 38, title: "Rompe Ralph (Wreck-It Ralph)", year: 2012, century: "XXI", studio: "Disney Classic", emoji: "🕹️", desc: "Un villano de videojuego de recreativa decide convertirse en un verdadero héroe.", trivia: "Aparecieron cameos oficiales de más de 180 personajes de videojuegos reales." },
+            { id: 39, title: "Frozen", year: 2013, century: "XXI", studio: "Disney Classic", emoji: "❄️", desc: "Anna viaja en busca de su hermana Elsa cuyos helados poderes sumieron al reino en invierno.", trivia: "Su tema 'Let It Go' se convirtió en un fenómeno global sin precedentes." },
+            { id: 40, title: "Big Hero 6", year: 2014, century: "XXI", studio: "Disney Classic", emoji: "🦾", desc: "El joven inventor Hiro y el robot Baymax forman un equipo de superhéroes en San Fransokyo.", trivia: "Basada libremente en un cómic poco conocido de la editorial Marvel." },
+            { id: 41, title: "Del revés (Inside Out)", year: 2015, century: "XXI", studio: "Pixar", emoji: "🧠", desc: "Las emociones de una niña (Alegría, Tristeza, Ira, Miedo y Asco) guían su mente.", trivia: "Expertos en psicología y neurología asesoraron a los guionistas durante la creación." },
+            { id: 42, title: "Zootrópolis", year: 2016, century: "XXI", studio: "Disney Classic", emoji: "🦊", desc: "Una coneja policía se alía con un astuto zorro para resolver misteriosas desapariciones.", trivia: "Ganó el Oscar a Mejor Película de Animación recaudando más de 1.000 millones." },
+            { id: 43, title: "Vaiana (Moana)", year: 2016, century: "XXI", studio: "Disney Classic", emoji: "🌊", desc: "Una joven navegante del Pacífico zarpaba para restaurar el corazón de la diosa Te Fiti.", trivia: "Dwayne Johnson prestó su voz al semidiós Maui e interpretó canciones originales." },
+            { id: 44, title: "Coco", year: 2017, century: "XXI", studio: "Pixar", emoji: "💀", desc: "Un niño mexicano apasionado por la música acaba en la deslumbrante Tierra de los Muertos.", trivia: "El equipo investigador viajó durante 3 años por México estudiando la tradición del Día de Muertos." },
+            { id: 45, title: "Soul", year: 2020, century: "XXI", studio: "Pixar", emoji: "🎹", desc: "Un profesor de música sufre un accidente antes de su gran debut y busca volver a su cuerpo.", trivia: "Primer largometraje de Pixar con un protagonista afroamericano." },
+            { id: 46, title: "Raya y el último dragón", year: 2021, century: "XXI", studio: "Disney Classic", emoji: "🐉", desc: "Una guerrera debe rastrear al último dragón legendario para salvar el reino de Kumandra.", trivia: "Inspirada en las culturas del sudeste asiático como Tailandia, Vietnam y Filipinas." },
+            { id: 47, title: "Encanto", year: 2021, century: "XXI", studio: "Disney Classic", emoji: "🕯️", desc: "Mirabel Madrigal busca salvar la magia de su casa en las montañas de Colombia.", trivia: "La canción 'We Don't Talk About Bruno' rompió récords históricos en las listas musicales." },
+            { id: 48, title: "Red (Turning Red)", year: 2022, century: "XXI", studio: "Pixar", emoji: "🐼", desc: "Una niña de 13 años se transforma en un panda rojo gigante cada vez que se emociona.", trivia: "Primera película de Pixar dirigida íntegramente por un equipo de liderazgo femenino." },
+            { id: 49, title: "Elemental", year: 2023, century: "XXI", studio: "Pixar", emoji: "🔥", desc: "Una chica de fuego y un chico de agua descubren todo lo que tienen en común.", trivia: "Requirió refrescar los servidores de animación debido a la densidad visual de los elementos." },
+            { id: 50, title: "Wish: El poder de los deseos", year: 2023, century: "XXI", studio: "Disney Classic", emoji: "⭐", desc: "Asha pide un deseo tan potente que una estrella mágica baja del cielo para ayudarla.", trivia: "Creada especialmente para conmemorar el centenario (100º aniversario) de The Walt Disney Company." },
+            { id: 51, title: "Del revés 2 (Inside Out 2)", year: 2024, century: "XXI", studio: "Pixar", emoji: "🧡", desc: "Riley llega a la adolescencia y nuevas emociones como Ansiedad toman el control de la mente.", trivia: "Se convirtió en la película de animación con mayor recaudación en la historia del cine mundial." },
+            { id: 52, title: "Moana 2 (Vaiana 2)", year: 2024, century: "XXI", studio: "Disney Classic", emoji: "⛵", desc: "Vaiana emprende un nuevo viaje por los mares tras recibir una llamada inesperada de sus ancestros.", trivia: "Fue concebida originalmente como serie de televisión antes de convertirse en largometraje de cine." }
+        ];
+
+        let selectedEra = 'all'; // 'all', 'xx', 'xxi'
+        let selectedCount = 20; // 10, 20, 'all'
+        
+        let activeGameMovies = [];
+        let currentIndex = 0;
+        let totalScore = 0;
+        let exactCount = 0;
+        let totalYearDiff = 0;
+
+        let allGroupYearsRevealed = false;
+
+        const views = {
+            home: document.getElementById('view-home'),
+            game: document.getElementById('view-game'),
+            results: document.getElementById('view-results'),
+            group: document.getElementById('view-group')
+        };
+
+        const navBtns = {
+            game: document.getElementById('nav-btn-game'),
+            group: document.getElementById('nav-btn-group')
+        };
+
+        window.onload = function() {
+            updateAvailableCount();
+            renderGroupList();
+        };
+
+        function setEraFilter(era) {
+            selectedEra = era;
+            document.querySelectorAll('#era-all, #era-xx, #era-xxi').forEach(btn => {
+                btn.className = "px-4 py-3 rounded-2xl border text-sm font-bold transition-all bg-white/5 text-slate-300 border-white/10 hover:bg-white/10";
+            });
+            document.getElementById(`era-${era}`).className = "px-4 py-3 rounded-2xl border text-sm font-bold transition-all bg-amber-500 text-slate-950 border-amber-400 shadow-md";
+            updateAvailableCount();
+        }
+
+        function setCountFilter(count) {
+            selectedCount = count;
+            document.querySelectorAll('#count-10, #count-20, #count-all').forEach(btn => {
+                btn.className = "px-4 py-2.5 rounded-2xl border text-sm font-bold transition-all bg-white/5 text-slate-300 border-white/10 hover:bg-white/10";
+            });
+            document.getElementById(`count-${count}`).className = "px-4 py-2.5 rounded-2xl border text-sm font-bold transition-all bg-amber-500 text-slate-950 border-amber-400 shadow-md";
+        }
+
+        function getFilteredMovies() {
+            if (selectedEra === 'xx') {
+                return moviesDatabase.filter(m => m.century === 'XX');
+            } else if (selectedEra === 'xxi') {
+                return moviesDatabase.filter(m => m.century === 'XXI');
+            }
+            return moviesDatabase;
+        }
+
+        function updateAvailableCount() {
+            const filtered = getFilteredMovies();
+            document.getElementById('available-count-badge').innerText = `${filtered.length} Películas`;
+        }
+
+        function switchMode(mode) {
+            Object.keys(views).forEach(v => views[v].classList.add('hidden'));
+
+            if (mode === 'game') {
+                navBtns.game.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-md";
+                navBtns.group.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10";
+            } else if (mode === 'group') {
+                navBtns.group.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-amber-500 text-slate-950 shadow-md";
+                navBtns.game.className = "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:text-white hover:bg-white/10";
+                views.group.classList.remove('hidden');
+                return;
+            }
+
+            if (mode === 'game') {
+                if (activeGameMovies.length === 0 || currentIndex >= activeGameMovies.length) {
+                    views.home.classList.remove('hidden');
+                } else {
+                    views.game.classList.remove('hidden');
+                }
+            }
+        }
+
+        function goToHome() {
+            Object.keys(views).forEach(v => views[v].classList.add('hidden'));
+            views.home.classList.remove('hidden');
+        }
+
+        function startGame() {
+            let pool = getFilteredMovies().sort(() => Math.random() - 0.5);
+            
+            if (selectedCount !== 'all') {
+                const count = parseInt(selectedCount);
+                pool = pool.slice(0, Math.min(count, pool.length));
+            }
+
+            activeGameMovies = pool;
+            currentIndex = 0;
+            totalScore = 0;
+            exactCount = 0;
+            totalYearDiff = 0;
+
+            Object.keys(views).forEach(v => views[v].classList.add('hidden'));
+            views.game.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const m = activeGameMovies[currentIndex];
+            
+            document.getElementById('game-progress-text').innerText = `${currentIndex + 1} / ${activeGameMovies.length}`;
+            document.getElementById('game-progress-bar').style.width = `${((currentIndex + 1) / activeGameMovies.length) * 100}%`;
+            document.getElementById('game-score').innerText = totalScore;
+
+            document.getElementById('movie-avatar').innerText = m.emoji;
+            document.getElementById('movie-tag').innerText = m.studio;
+            document.getElementById('movie-century').innerText = m.century === 'XX' ? 'Siglo XX' : 'Siglo XXI';
+            document.getElementById('movie-title').innerText = m.title;
+            document.getElementById('movie-desc').innerText = m.desc;
+
+            // Adjust default slider starting position depending on era
+            const slider = document.getElementById('year-slider');
+            let initialYear = 1990;
+            if (m.century === 'XXI') initialYear = 2012;
+            if (m.century === 'XX' && m.year < 1960) initialYear = 1950;
+
+            slider.value = initialYear;
+            updateYearDisplay(initialYear);
+
+            document.getElementById('interactive-area').classList.remove('hidden');
+            document.getElementById('feedback-area').classList.add('hidden');
+        }
+
+        function updateYearDisplay(val) {
+            document.getElementById('selected-year-display').innerText = val;
+        }
+
+        function submitAnswer() {
+            const m = activeGameMovies[currentIndex];
+            const userYear = parseInt(document.getElementById('year-slider').value);
+            const realYear = m.year;
+
+            const diff = Math.abs(realYear - userYear);
+            totalYearDiff += diff;
+
+            // Score formula: exact = 100, -15 pts per year off, min 0
+            let pointsGained = 0;
+            if (diff === 0) pointsGained = 100;
+            else if (diff === 1) pointsGained = 85;
+            else if (diff === 2) pointsGained = 70;
+            else if (diff === 3) pointsGained = 55;
+            else if (diff === 4) pointsGained = 40;
+            else if (diff === 5) pointsGained = 25;
+            else pointsGained = Math.max(0, 20 - (diff - 5) * 2);
+
+            if (diff === 0) {
+                exactCount++;
+                try {
+                    confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
+                } catch(e){}
+            }
+
+            totalScore += pointsGained;
+
+            document.getElementById('interactive-area').classList.add('hidden');
+            const feedbackArea = document.getElementById('feedback-area');
+            feedbackArea.classList.remove('hidden');
+
+            const badge = document.getElementById('feedback-badge');
+            const fTitle = document.getElementById('feedback-title');
+            const fSub = document.getElementById('feedback-sub');
+            const fPoints = document.getElementById('feedback-points');
+
+            if (diff === 0) {
+                badge.innerText = "🎯";
+                badge.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                fTitle.innerText = "¡Acierto Exacto!";
+                fTitle.className = "font-heading font-bold text-lg text-emerald-400";
+            } else if (diff <= 3) {
+                badge.innerText = "⚡";
+                badge.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                fTitle.innerText = `¡Casi! Diferencia de solo ${diff} ${diff === 1 ? 'año' : 'años'}`;
+                fTitle.className = "font-heading font-bold text-lg text-amber-300";
+            } else {
+                badge.innerText = "📐";
+                badge.className = "w-12 h-12 rounded-xl flex items-center justify-center text-2xl font-bold bg-pink-500/20 text-pink-400 border border-pink-500/30";
+                fTitle.innerText = `Diferencia de ${diff} años`;
+                fTitle.className = "font-heading font-bold text-lg text-pink-300";
+            }
+
+            document.getElementById('real-year-text').innerText = realYear;
+            fPoints.innerText = `+${pointsGained} Ptos`;
+            document.getElementById('feedback-trivia').innerText = m.trivia;
+            document.getElementById('game-score').innerText = totalScore;
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < activeGameMovies.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            Object.keys(views).forEach(v => views[v].classList.add('hidden'));
+            views.results.classList.remove('hidden');
+
+            const maxScore = activeGameMovies.length * 100;
+
+            document.getElementById('final-score').innerText = totalScore;
+            document.getElementById('max-possible-score').innerText = `de ${maxScore} máx`;
+            
+            document.getElementById('exact-hits').innerText = exactCount;
+            document.getElementById('total-questions-count').innerText = `de ${activeGameMovies.length} películas`;
+            
+            const avgDiff = (totalYearDiff / activeGameMovies.length).toFixed(1);
+            document.getElementById('avg-error').innerText = avgDiff;
+
+            const trophyEmoji = document.getElementById('trophy-emoji');
+            const rankTitle = document.getElementById('rank-title');
+            const finalMessage = document.getElementById('final-message');
+
+            const scoreRatio = totalScore / maxScore;
+
+            if (scoreRatio >= 0.85) {
+                trophyEmoji.innerText = "👑";
+                rankTitle.innerText = "Maestro Supremo de la Cronología Disney";
+                finalMessage.innerText = "¡Increíble! Conoces con precisión milimétrica la historia cinematográfica de Disney y Pixar.";
+                try {
+                    confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+                } catch(e){}
+            } else if (scoreRatio >= 0.65) {
+                trophyEmoji.innerText = "🏆";
+                rankTitle.innerText = "Gran Historiador de Animación";
+                finalMessage.innerText = "¡Excelente puntuación! Tienes una intuición fantástica para ubicar las épocas de estreno.";
+            } else if (scoreRatio >= 0.45) {
+                trophyEmoji.innerText = "🥇";
+                rankTitle.innerText = "Aficionado del Cine Disney";
+                finalMessage.innerText = "¡Buen trabajo! Has acertado las fechas de muchos clásicos memorables.";
+            } else {
+                trophyEmoji.innerText = "🍿";
+                rankTitle.innerText = "Espectador Casual";
+                finalMessage.innerText = "¡Buen esfuerzo! El catálogo abarca casi 90 años. ¡Prueba otra partida para mejorar tu marca!";
+            }
+        }
+
+        function renderGroupList() {
+            filterGroupList();
+        }
+
+        function filterGroupList() {
+            const container = document.getElementById('group-list-container');
+            container.innerHTML = "";
+
+            const query = document.getElementById('group-search').value.toLowerCase();
+            const eraFilter = document.getElementById('group-era-filter').value;
+
+            let filtered = moviesDatabase.filter(m => {
+                const matchName = m.title.toLowerCase().includes(query) || m.studio.toLowerCase().includes(query);
+                const matchEra = eraFilter === 'all' || (eraFilter === 'xx' && m.century === 'XX') || (eraFilter === 'xxi' && m.century === 'XXI');
+                return matchName && matchEra;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-2 text-center py-12 text-slate-400 glass-card rounded-2xl">
+                        <span class="text-4xl block mb-2">🔍</span>
+                        No se encontraron películas que coincidan con la búsqueda.
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach((movie) => {
+                const card = document.createElement('div');
+                card.className = "glass-card p-5 rounded-2xl flex flex-col justify-between space-y-4 hover:border-white/30 transition-all";
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl">${movie.emoji}</span>
+                            <div>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-500/20 px-2 py-0.5 rounded-md border border-indigo-500/30">
+                                        ${movie.studio}
+                                    </span>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-purple-300 bg-purple-500/20 px-2 py-0.5 rounded-md border border-purple-500/30">
+                                        Siglo ${movie.century}
+                                    </span>
+                                </div>
+                                <h3 class="font-heading font-bold text-lg text-white mt-1">${movie.title}</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">${movie.desc}</p>
+                    
+                    <div class="pt-2 border-t border-white/10">
+                        <button onclick="toggleGroupYear(${movie.id})" id="btn-reveal-${movie.id}" class="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-amber-300 flex justify-between items-center transition-all">
+                            <span>Revelar año de estreno</span>
+                            <span>👁️</span>
+                        </button>
+                        
+                        <div id="info-reveal-${movie.id}" class="${allGroupYearsRevealed ? '' : 'hidden'} mt-3 p-3 rounded-xl bg-slate-950/90 border border-white/10 space-y-1.5 text-xs">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-400">Año de estreno:</span>
+                                <span class="font-heading font-extrabold text-amber-400 text-base">${movie.year}</span>
+                            </div>
+                            <p class="text-slate-300 text-[11px] border-t border-white/5 pt-1.5 mt-1">
+                                <strong class="text-indigo-300">Dato:</strong> ${movie.trivia}
+                            </p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleGroupYear(id) {
+            const infoBox = document.getElementById(`info-reveal-${id}`);
+            const btn = document.getElementById(`btn-reveal-${id}`);
+            if (infoBox.classList.contains('hidden')) {
+                infoBox.classList.remove('hidden');
+                btn.classList.add('bg-amber-400/20', 'border', 'border-amber-400/30');
+            } else {
+                infoBox.classList.add('hidden');
+                btn.classList.remove('bg-amber-400/20', 'border', 'border-amber-400/30');
+            }
+        }
+
+        function toggleAllYears() {
+            allGroupYearsRevealed = !allGroupYearsRevealed;
+            const btn = document.getElementById('btn-toggle-all');
+            
+            moviesDatabase.forEach(m => {
+                const infoBox = document.getElementById(`info-reveal-${m.id}`);
+                if (infoBox) {
+                    if (allGroupYearsRevealed) {
+                        infoBox.classList.remove('hidden');
+                    } else {
+                        infoBox.classList.add('hidden');
+                    }
+                }
+            });
+
+            btn.innerText = allGroupYearsRevealed ? "🙈 Ocultar todos" : "👁️ Revelar todos";
+        }
+    </script>
+</body>
+</html>
